@@ -1,0 +1,23 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: user-service
+  description: Tanzu Banking Demo - user Service
+  tags:
+    - spring
+    - java
+    - banking-demo
+    - user-service
+  annotations:
+    'backstage.io/kubernetes-label-selector': 'app.kubernetes.io/part-of=user-service'
+spec:
+  type: service
+  lifecycle: experimental
+  owner: bank-team-a
+  system: tanzu-banking-system
+  dependsOn:
+    - component:config-server
+    - component:discovery-server
+    - resource:user-db
+  providesApis:
+    - user-service

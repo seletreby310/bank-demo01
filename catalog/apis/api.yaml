@@ -1,0 +1,71 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: account-service
+  description: API for Banking Demo - Account Service
+  tags:
+    - account-service
+    - banking-demo
+  #annotations:
+  #  'backstage.io/techdocs-ref': dir:.
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: bank-team-a
+  system: tanzu-banking-system
+  definition:
+    $text: ../../account-service/openapi.yaml
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: portfolio-service
+  description: API for Banking Demo - Portfolio Service
+  tags:
+    - portfolio-service
+    - banking-demo
+  #annotations:
+  #  'backstage.io/techdocs-ref': dir:.
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: bank-team-a
+  system: tanzu-banking-system
+  definition:
+    $text: ../../portfolio-service/openapi.yaml
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: quote-service
+  description: API for Banking Demo - Quote Service
+  tags:
+    - quote-service
+    - banking-demo
+  #annotations:
+  #  'backstage.io/techdocs-ref': dir:.
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: bank-team-a
+  system: tanzu-banking-system
+  definition:
+    $text: ../../quote-service/openapi.yaml
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: user-service
+  description: API for Banking Demo - User Service
+  tags:
+    - user-service
+    - banking-demo
+  #annotations:
+  #  'backstage.io/techdocs-ref': dir:.
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: bank-team-a
+  system: tanzu-banking-system
+  definition:
+    $text: ../../user-service/openapi.yaml

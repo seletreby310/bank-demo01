@@ -1,0 +1,26 @@
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: tanzu-banking-group
+  description: The VMware organization
+  links:
+    - url: https://www.vmware.com
+      title: Website
+spec:
+  type: organization
+  profile:
+    displayName: VMware Inc.
+    email: noreply@vmware.com
+    picture: https://blogs.vmware.com/wp-content/themes/blog-landing-0.2.0/dist/images/vmware-logo-large.png
+  children: [tr-banking-market]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: vmware-semea-banking
+  description: The VMware SEMEA
+spec:
+  targets:
+    - ./department.yaml
+    - ./bank-team-a.yaml
+    - ./bank-team-b.yaml

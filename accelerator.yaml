@@ -1,0 +1,1125 @@
+accelerator:
+  displayName: Tanzu Banking Demo
+  description: Accelerator to demonstate banking application on TAP with microservices
+  iconUrl: https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Node.js_logo.svg/1280px-Node.js_logo.svg.png
+  tags:
+  - spring
+  - banking
+  - tanzu-banking-demo
+
+  options:
+  
+         
+  - name: gitRepo
+    label: Git repo
+    inputType: text
+    required: true
+    dataType: string
+    defaultValue: https://github.com/MoSehsah/bank-demo
+    
+  - name: parentApp
+    label: Name of parent application (the Big A app)
+    description: Name of the parent application this component is a part of
+    inputType: text
+    dataType: string
+    defaultValue: banking-demo
+
+  - name: pkgName
+    label: Package name
+    inputType: text
+    defaultValue: "com.vmware.tanzu"
+    required: true
+
+  - name: javaVersion
+    label: Java version
+    inputType: radio
+    dataType: number
+    defaultValue: 17
+    choices:
+      - value: 11
+        text: 11
+      - value: 17
+        text: 17
+    required: true
+
+  - name: springBootVersion
+    label: Spring Boot version
+    inputType: select
+    choices:
+    - value: 2.7.1
+      text: 2.7.1
+    - value: 2.6.9
+      text: 2.6.9
+    defaultValue: "2.6.9"
+    required: true
+
+  - name: namespaceToDeploy
+    label: Namespace to deploy
+    description: Please type the namespace to deploy
+    inputType: text
+    dataType: string
+    defaultValue: dev
+
+  - name: hasTests
+    label: Do CI test
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+
+  - name: airgapped
+    label: Airgapped setup
+    description: Quote-Service will return static values instead of fetching live data from IEX-Trade.
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+
+  - name: containterRegistryURL
+    label: Container Registry URL for Tiltfile
+    description: Please type the URL
+    inputType: text
+    dataType: string
+    defaultValue: harbor.dorn.gorke.ml/tap-15
+
+  - name: k8sContextName
+    label: Kubernetes Context Name for Tiltfile
+    description: Please type the context name
+    inputType: text
+    dataType: string
+    defaultValue: gke_gorkemozlu_europe-central2-c_tap-gke02
+###### Open Telemetry
+  - name: otelState
+    label: Enable OpenTelemetry Distributed Tracing?
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+
+  - name: deployOtel
+    label: Deploy OpenTelemetry Operator?
+    dependsOn:
+      name: otelState
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+
+  - name: selectTracingMethod
+    label: Please choose the tracing method.
+    dependsOn:
+      name: otelState
+    inputType: select
+    defaultValue: dummyValue
+    choices:
+      - value: wavefront
+        text: Tanzu Observability
+      - value: jaeger
+        text: Jaeger
+
+  - name: wavefrontToken
+    label: Tanzu Observability Token for distributed tracing
+    description: Please type the token
+    dependsOn:
+      name: selectTracingMethod
+      value: wavefront
+    inputType: text
+    dataType: string
+    defaultValue: xyz-asd-000
+
+  #discovery-server
+  - name: eurekaState
+    label: Auto Integrate with Service Discovery ?
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+
+  - name: eurekaURL
+    label: Eureka Service Discovery URL
+    description: Please type the URL
+    dependsOn:
+      name: eurekaState
+    inputType: text
+    dataType: string
+    defaultValue: 'http://discovery-server.dev.svc.cluster.local/eureka'
+  
+  - name: autoScalingClass
+    label: Choose autoscaling Class
+    inputType: select
+    defaultValue: dummyValue
+    choices:
+      - value: kpa
+        text: Knative Concurrency-based autoscaling (KPA)
+      - value: hpa
+        text: Standard Kubernetes CPU-based autoscaling. (HPA)
+
+  - name: autoScalingMinScale
+    label: Minimum Pod Count
+    description: Disable scale to zero with a minScale of 1.
+    dependsOn:
+      name: autoScalingClass
+      value: kpa
+    inputType: text
+    dataType: string
+    defaultValue: "1"
+
+  - name: autoScalingMaxScale
+    label: Max Pod Count
+    description: Change max pod count
+    dependsOn:
+      name: autoScalingClass
+      value: kpa
+    inputType: text
+    dataType: string
+    defaultValue: "10"
+
+  - name: autoScalingScaleDownDelay
+    label: Scale Down Delay time
+    description: The time window before scale down applied
+    dependsOn:
+      name: autoScalingClass
+      value: kpa
+    inputType: text
+    dataType: string
+    defaultValue: "10m"
+
+  #Add-posgres-section
+
+#  - name: postgresVersion
+#    label: Choose postgres version
+#    dependsOn:
+#      name: addPostgresServiceClaim
+#    inputType: select
+#    defaultValue: postgres-14
+#    choices:
+#      - value: postgres-12
+#        text: postgres-12
+#      - value: postgres-13
+#        text: postgres-13
+#      - value: postgres-14
+#        text: postgres-14
+#
+#  - name: postgresName
+#    label: Set postgres name
+#    description: Give a deployment name for postgres
+#    dependsOn:
+#      name: addPostgresServiceClaim
+#    inputType: text
+#    dataType: string
+#    defaultValue: postgres
+#
+#  - name: postgresStorageClassName
+#    label: Set the Storage Class name
+#    dependsOn:
+#      name: addPostgresServiceClaim
+#    inputType: text
+#    dataType: string
+#    defaultValue: standard
+#
+#  - name: postgresDBName
+#    label: Set the Database name
+#    dependsOn:
+#      name: addPostgresServiceClaim
+#    inputType: text
+#    dataType: string
+#    defaultValue: tanzubank
+#
+#  - name: postgresHaMode
+#    label: Set the High Availability
+#    dependsOn:
+#      name: addPostgresServiceClaim
+#    inputType: toggle
+#    display: true
+#    dataType: boolean
+#    defaultValue: false
+
+####################################################################################################################################
+  #config-server
+  - name: configServerDeploy
+    label: Deploy Config-Server ?
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+
+  - name: branchNameConfigServer
+    label: Branch of the Config-Server
+    description: Please type the branch to use - Skip this value if using existing.
+    dependsOn:
+      name: configServerDeploy
+    inputType: text
+    dataType: string
+    defaultValue: main
+####################################################################################################################################
+  #discovery-server
+  - name: discoveryServerDeploy
+    label: Deploy Discovery-Server ?
+    description: Spring Eureka 
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+
+  - name: branchNameDiscoveryServer
+    label: Branch of the Discovery-Server
+    description: Please type the branch to use - Skip this value if using existing.
+    dependsOn:
+      name: discoveryServerDeploy
+    inputType: text
+    dataType: string
+    defaultValue: main
+####################################################################################################################################
+  #account-service
+  - name: accountServiceDeploy
+    label: Deploy Account-Service ?
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+  
+  - name: accountServiceDeployState
+    label: Choose Account-Service
+    dependsOn:
+      name: accountServiceDeploy
+    inputType: select
+    defaultValue: existingAccountService
+    choices:
+      - value: newAccountServiceDevelop
+        text: Develop using Discovery-Server
+      - value: newAccountServiceDeploy
+        text: Deploy using Discovery-Server
+  - name: accountServiceDeployName
+    label: Choose service name of Account-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: accountServiceDeploy
+    inputType: text
+    dataType: string
+    defaultValue: account-service # double check.
+
+#  - name: hasTestsAccountService
+#    label: Do CI test
+#    dependsOn:
+#      name: accountServiceDeploy
+#    inputType: checkbox
+#    display: true
+#    dataType: boolean
+#    defaultValue: false
+
+  - name: branchNameAccountService
+    label: Branch of the Account-Service
+    description: Please type the branch to use - Skip this value if using existing.
+    dependsOn:
+      name: accountServiceDeploy
+    inputType: text
+    dataType: string
+    defaultValue: main
+####################################################################################################################################
+  #user-service
+  - name: userServiceDeploy
+    label: Deploy User-Service ?
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+  
+  - name: userServiceDeployState
+    label: Choose User-Service
+    dependsOn:
+      name: userServiceDeploy
+    inputType: select
+    defaultValue: existingUserService
+    choices:
+      - value: newUserServiceDevelop
+        text: Develop using Discovery-Server
+      - value: newUserServiceDeploy
+        text: Deploy using Discovery-Server
+  - name: userServiceDeployName
+    label: Choose service name of User-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: userServiceDeploy
+    inputType: text
+    dataType: string
+    defaultValue: user-service # double check.
+
+#  - name: hasTestsUserService
+#    label: Do CI test
+#    dependsOn:
+#      name: userServiceDeploy
+#    display: true
+#    inputType: checkbox
+#    dataType: boolean
+#    defaultValue: false
+
+  - name: addPostgresServiceClaim
+    label: Auto Deploy and Integrate with Tanzu PostgreSQL ?
+    dependsOn:
+      name: userServiceDeploy
+    display: true
+    dataType: boolean
+    defaultValue: false
+
+  - name: branchNameUserService
+    label: Branch of the User-Service
+    description: Please type the branch to use - Skip this value if using existing.
+    dependsOn:
+      name: userServiceDeploy
+    inputType: text
+    dataType: string
+    defaultValue: main
+####################################################################################################################################
+  #quote-service
+  - name: quoteServiceDeploy
+    label: Deploy Quote-Service (Java)?
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+  
+  - name:  quoteServiceDeployState
+    label: Choose Quote-Service
+    dependsOn:
+      name: quoteServiceDeploy
+    inputType: select
+    defaultValue: existingQuoteService
+    choices:
+      - value: newQuoteServiceDevelop
+        text: Develop using Discovery-Server
+      - value: newQuoteServiceDeploy
+        text: Deploy using Discovery-Server
+  - name: quoteServiceDeployName
+    label: Choose service name of Quote-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: quoteServiceDeploy
+    inputType: text
+    dataType: string
+    defaultValue: quote-service # double check.
+
+#  - name: hasTestsQuoteService
+#    label: Do CI test
+#    dependsOn:
+#      name: quoteServiceDeploy
+#    display: true
+#    inputType: checkbox
+#    dataType: boolean
+#    defaultValue: false
+
+  - name: enableRedisCachingQuoteService
+    label: Enable Redis Caching
+    dependsOn:
+      name: quoteServiceDeploy
+    display: true
+    dataType: boolean
+    defaultValue: false
+
+  - name: branchNameQuoteService
+    label: Branch of the Quote-Service
+    description: Please type the branch to use - Skip this value if using existing.
+    dependsOn:
+      name: quoteServiceDeploy
+    inputType: text
+    dataType: string
+    defaultValue: main
+
+####################################################################################################################################
+  #quote-service-dotnet
+  - name: quoteServiceDotnetDeploy
+    label: Deploy Quote-Service (.Net Core)?
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+  
+  - name:  quoteServiceDotnetDeployState
+    label: Choose Quote-Service
+    dependsOn:
+      name: quoteServiceDotnetDeploy
+    inputType: select
+    defaultValue: dummyDefaultValue
+    choices:
+      - value: quoteServiceDotnetDevelop
+        text: Develop using Discovery-Server
+      - value: newQuoteServiceDotnetDeploy
+        text: Deploy using Discovery-Server
+  - name: quoteServiceDotnetDeployName
+    label: Choose service name of Quote-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: quoteServiceDotnetDeploy
+    inputType: text
+    dataType: string
+    defaultValue: quote-service # double check.
+
+#  - name: hasTestsQuoteServiceDotnet
+#    label: Do CI test
+#    dependsOn:
+#      name: quoteServiceDotnetDeploy
+#    display: true
+#    inputType: checkbox
+#    dataType: boolean
+#    defaultValue: false
+
+  - name: quoteServiceDotnetTilt
+    label: Enable Development with Tilt
+    dependsOn:
+      name: quoteServiceDotnetDeploy
+    display: true
+    dataType: boolean
+    defaultValue: false
+
+  - name: branchNameQuoteServiceDotnet
+    label: Branch of the Quote-Service
+    description: Please type the branch to use - Skip this value if using existing.
+    dependsOn:
+      name: quoteServiceDotnetDeploy
+    inputType: text
+    dataType: string
+    defaultValue: main
+
+####################################################################################################################################
+  #portfolio-service
+  - name: portfolioServiceDeploy
+    label: Deploy Portfolio-Service ?
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+  
+  - name: portfolioServiceDeployState
+    label: Choose Portfolio-Service
+    dependsOn:
+      name: portfolioServiceDeploy
+    inputType: select
+    defaultValue: dummyDefaultValue
+    choices:
+      - value: newPortfolioServiceDevelop
+        text: Develop using Discovery-Server
+      - value: newPortfolioServiceDeploy
+        text: Deploy using Discovery-Server
+      - value: existingPortfolioService
+        text: Develop using External Services
+  - name: portfolioServiceDeployName
+    label: Choose service name of Portfolio-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: portfolioServiceDeploy
+    inputType: text
+    dataType: string
+    defaultValue: portfolio-service # double check.
+  - name: accountServiceName
+    label: Type external service name of Account-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: portfolioServiceDeployState
+      value: existingPortfolioService
+    inputType: text
+    dataType: string
+    defaultValue: account-service.dev.svc.cluster.local:80 # double check.
+  - name: quoteServiceName
+    label: Type external service name of Quote-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: portfolioServiceDeployState
+      value: existingPortfolioService
+    inputType: text
+    dataType: string
+    defaultValue: quote-service.dev.svc.cluster.local:80 # double check.
+#  - name: hasTestsPortfolioService
+#    label: Do CI test
+#    dependsOn:
+#      name: portfolioServiceDeploy
+#    inputType: checkbox
+#    display: true
+#    dataType: boolean
+#    defaultValue: false
+
+  - name: branchNamePortfolioService
+    label: Branch of the Portfolio-Service
+    description: Please type the branch to use - Skip this value if using existing.
+    dependsOn:
+      name: portfolioServiceDeploy
+    inputType: text
+    dataType: string
+    defaultValue: main
+####################################################################################################################################
+
+#web-service
+  - name: webServiceDeploy
+    label: Deploy Web-Service ?
+    inputType: checkbox
+    display: true
+    dataType: boolean
+    defaultValue: false
+  
+  - name: webServiceDeployState
+    label: Choose Web-Service
+    dependsOn:
+      name: webServiceDeploy
+    inputType: select
+    defaultValue: newWebServiceDeploy
+    choices:
+      - value: newWebServiceDevelop
+        text: Develop using Discovery-Server
+      - value: newWebServiceDeploy
+        text: Deploy using Discovery-Server
+      - value: existingWebService
+        text: Develop using External Services
+  - name: webServiceDeployNameW
+    label: Choose service name of Web-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: webServiceDeploy
+    inputType: text
+    dataType: string
+    defaultValue: web-service # double check.
+  - name: accountServiceNameW
+    label: Choose service name of Account-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: webServiceDeployState
+      value: existingWebService
+    inputType: text
+    dataType: string
+    defaultValue: account-service.dev.svc.cluster.local:80 # double check.
+  - name: quoteServiceNameW
+    label: Type external service name of Quote-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: webServiceDeployState
+      value: existingWebService
+    inputType: text
+    dataType: string
+    defaultValue: quote-service.dev.svc.cluster.local:80 # double check.
+
+  - name: userServiceNameW
+    label: Type external service name of User-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: webServiceDeployState
+      value: existingWebService
+    inputType: text
+    dataType: string
+    defaultValue: user-service.dev.svc.cluster.local:80 # double check.
+  - name: portfolioServiceNameW
+    label: Type external  service name of Portfolio-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: webServiceDeployState
+      value: existingWebService
+    inputType: text
+    dataType: string
+    defaultValue: portfolio-service.dev.svc.cluster.local:80 # double check.
+  - name: analyticsServiceNameW
+    label: Type external service name of Analytics-Service.
+    describe: Change default value if needed
+    dependsOn:
+      name: webServiceDeployState
+      value: existingWebService
+    inputType: text
+    dataType: string
+    defaultValue: analytics-service.dev.svc.cluster.local:80 # double check.
+
+#  - name: hasTestsWebService
+#    label: Do CI test
+#    dependsOn:
+#      name: webServiceDeploy
+#    display: true
+#    inputType: checkbox
+#    dataType: boolean
+#    defaultValue: false
+  
+  - name: branchNameWebService
+    label: Branch of the Web-Service
+    description: Please type the branch to use - Skip this value if using existing.
+    dependsOn:
+      name: webServiceDeploy
+    inputType: text
+    dataType: string
+    defaultValue: main
+
+####################################################################################################################################
+
+#  - name: You can access the output with CLI as well
+#    inputType: textarea
+#    display: true
+#    defaultValue: |
+#      kubectl -n accelerator-system port-forward svc/acc-server 8877:80
+#      tanzu accelerator generate spring-data-services --server-url http://localhost:8877 --options='{"gitRepo":"https://github.com/gorkemozlu/spring-petclinic-tap-mysql","parentApp":"petclinic-app","hasTests":false,"addToComponent":true,"branchName":"main","namespaceToDeploy":"my-apps","addDB":true,"dbType":"MySQL","dbName":"petclinic-db","appDeploymentType":"tap"}'
+
+engine:
+  let:
+    - name: emptyVar
+      expression: "''"
+  merge:
+    #generic transformations
+    - includes: ["readme.md"]
+    - includes: ["yaml/airgapped/**"]
+      condition: "#airgapped != false"
+    - includes: ["yaml/open-telemetry/open-telemetry/**"]
+      condition: "#deployOtel != false"
+      chain:
+        - type: YTT
+    - includes: ["yaml/open-telemetry/readme.md"]
+      condition: "#deployOtel != false"
+    - includes: ["yaml/open-telemetry/jaeger/**"]
+      condition: "#selectTracingMethod == 'jaeger'"
+      chain:
+        - type: YTT
+    - includes: ["yaml/open-telemetry/wavefront/**"]
+      condition: "#selectTracingMethod == 'wavefront'"
+      chain:
+        - type: YTT
+    - includes: ["account-service/**"]
+      condition: "#accountServiceDeployState == 'newAccountServiceDevelop'"
+      excludes: [ "account-service/target","account-service/config/**" ]
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: containterRegistryURL
+              with: "#containterRegistryURL"
+        - type: ReplaceText
+          substitutions:
+            - text: nspace
+              with: "#namespaceToDeploy"
+        - type: ReplaceText
+          substitutions:
+            - text: app-name
+              with: "#accountServiceDeployName"
+        - type: ReplaceText
+          substitutions:
+            - text: context-name
+              with: "#k8sContextName"
+        - type: ReplaceText
+          substitutions:
+            - text: com.vmware.tanzu
+              with: "#pkgName"
+        - type: RewritePath
+          regex: account-service/src/main/java/com/vmware/tanzu/account/(.*)
+          rewriteTo: "'account-service/src/main/java/' + #pkgName.replace('.', '/') + '/account/' + #g1"
+        - type: RewritePath
+          regex: account-service/src/test/java/com/vmware/tanzu/account/(.*)
+          rewriteTo: "'account-service/src/test/java/' + #pkgName.replace('.', '/') + '/account/' + #g1"
+        - type: ReplaceText
+          substitutions:
+          - text: "<groupId>com.vmware.tanzu</groupId>'"
+            with: "'<groupId>' + #pkgName + '</groupId>'"
+          - text: "<java.version>17</java.version>"
+            with: "'<java.version>' + #javaVersion + '</java.version>'"
+          - text: "<version>2.7.1</version>"
+            with: "'<version>' + #springBootVersion + '</version>'"
+    - includes: ["account-service/config/**"]
+      condition: "#accountServiceDeploy != false"
+      chain:
+        - type: YTT
+    #- includes: [ "account-service/Tiltfile" ]
+    - includes: ["config-server/config/**"]
+      condition: "#configServerDeploy != false"
+      chain:
+        - type: YTT
+    - includes: ["discovery-server/config/**"]
+      condition: "#discoveryServerDeploy != false"
+      chain:
+        - type: YTT
+    - includes: ["user-service/**"]
+      condition: "#userServiceDeployState == 'newUserServiceDevelop'"
+      excludes: [ "user-service/target","user-service/config/**" ]
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: containterRegistryURL
+              with: "#containterRegistryURL"
+        - type: ReplaceText
+          substitutions:
+            - text: nspace
+              with: "#namespaceToDeploy"
+        - type: ReplaceText
+          substitutions:
+            - text: app-name
+              with: "#userServiceDeployName"
+        - type: ReplaceText
+          substitutions:
+            - text: context-name
+              with: "#k8sContextName"
+        - type: ReplaceText
+          substitutions:
+            - text: com.vmware.tanzu
+              with: "#pkgName"
+        - type: RewritePath
+          regex: user-service/src/main/java/com/vmware/tanzu/user/(.*)
+          rewriteTo: "'user-service/src/main/java/' + #pkgName.replace('.', '/') + '/user/' + #g1"
+        - type: RewritePath
+          regex: user-service/src/test/java/com/vmware/tanzu/user/(.*)
+          rewriteTo: "'user-service/src/test/java/' + #pkgName.replace('.', '/') + '/user/' + #g1"
+        - type: ReplaceText
+          substitutions:
+          - text: "<groupId>com.vmware.tanzu</groupId>'"
+            with: "'<groupId>' + #pkgName + '</groupId>'"
+          - text: "<java.version>17</java.version>"
+            with: "'<java.version>' + #javaVersion + '</java.version>'"
+          - text: "<version>2.7.1</version>"
+            with: "'<version>' + #springBootVersion + '</version>'"
+    - includes: ["user-service/config/**"]
+      condition: "#userServiceDeploy != false"
+      chain:
+        - type: YTT
+    - includes: ["quote-service/**"]
+      condition: "#quoteServiceDeployState == 'newQuoteServiceDevelop'"
+      excludes: [ "quote-service/target","quote-service/config/**" ]
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: containterRegistryURL
+              with: "#containterRegistryURL"
+        - type: ReplaceText
+          substitutions:
+            - text: nspace
+              with: "#namespaceToDeploy"
+        - type: ReplaceText
+          substitutions:
+            - text: app-name
+              with: "#quoteServiceDeployName"
+        - type: ReplaceText
+          substitutions:
+            - text: context-name
+              with: "#k8sContextName"
+        - type: ReplaceText
+          substitutions:
+            - text: com.vmware.tanzu
+              with: "#pkgName"
+        - type: RewritePath
+          regex: quote-service/src/main/java/com/vmware/tanzu/quotes/(.*)
+          rewriteTo: "'quote-service/src/main/java/' + #pkgName.replace('.', '/') + '/quotes/' + #g1"
+        - type: RewritePath
+          regex: quote-service/src/test/java/com/vmware/tanzu/quotes/(.*)
+          rewriteTo: "'quote-service/src/test/java/' + #pkgName.replace('.', '/') + '/quotes/' + #g1"
+        - type: ReplaceText
+          substitutions:
+          - text: "<groupId>com.vmware.tanzu</groupId>'"
+            with: "'<groupId>' + #pkgName + '</groupId>'"
+          - text: "<java.version>17</java.version>"
+            with: "'<java.version>' + #javaVersion + '</java.version>'"
+          - text: "<version>2.7.1</version>"
+            with: "'<version>' + #springBootVersion + '</version>'"
+#        - type: ReplaceText
+#          substitutions:
+#          - text: '@EnableCaching'
+#            with: "#emptyVar"
+#          condition: "#enableRedisCachingQuoteService"
+    - includes: ["quote-service/config/**"]
+      condition: "#quoteServiceDeploy != false"
+      chain:
+        - type: YTT
+    - includes: ["quote-service-dotnet/**"]
+      condition: "#quoteServiceDotnetDeployState == 'quoteServiceDotnetDevelop'"
+      excludes: [ "quote-service-dotnet/config/**" ]
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: containterRegistryURL
+              with: "#containterRegistryURL"
+        - type: ReplaceText
+          substitutions:
+            - text: nspace
+              with: "#namespaceToDeploy"
+        - type: ReplaceText
+          substitutions:
+            - text: app-name
+              with: "#quoteServiceDotnetDeployName"
+        - type: ReplaceText
+          substitutions:
+            - text: context-name
+              with: "#k8sContextName"
+    - includes: ["quote-service-dotnet/config/**"]
+      condition: "#quoteServiceDotnetDeploy != false"
+      chain:
+        - type: YTT
+    - includes: ["portfolio-service/**"]
+      condition: "#portfolioServiceDeployState == 'newPortfolioServiceDevelop'"
+      excludes: [ "portfolio-service/target","portfolio-service/config/**" ]
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: containterRegistryURL
+              with: "#containterRegistryURL"
+        - type: ReplaceText
+          substitutions:
+            - text: nspace
+              with: "#namespaceToDeploy"
+        - type: ReplaceText
+          substitutions:
+            - text: app-name
+              with: "#portfolioServiceDeployName"
+        - type: ReplaceText
+          substitutions:
+            - text: context-name
+              with: "#k8sContextName"
+        - type: ReplaceText
+          substitutions:
+            - text: com.vmware.tanzu
+              with: "#pkgName"
+        - type: RewritePath
+          regex: portfolio-service/src/main/java/com/vmware/tanzu/portfolio/(.*)
+          rewriteTo: "'portfolio-service/src/main/java/' + #pkgName.replace('.', '/') + '/portfolio/' + #g1"
+        - type: RewritePath
+          regex: portfolio-service/src/test/java/com/vmware/tanzu/portfolio/(.*)
+          rewriteTo: "'portfolio-service/src/test/java/' + #pkgName.replace('.', '/') + '/portfolio/' + #g1"
+        - type: ReplaceText
+          substitutions:
+          - text: "<groupId>com.vmware.tanzu</groupId>'"
+            with: "'<groupId>' + #pkgName + '</groupId>'"
+          - text: "<java.version>17</java.version>"
+            with: "'<java.version>' + #javaVersion + '</java.version>'"
+          - text: "<version>2.7.1</version>"
+            with: "'<version>' + #springBootVersion + '</version>'"
+    - includes: ["portfolio-service/config/**"]
+      condition: "#portfolioServiceDeploy != false"
+      chain:
+        - type: YTT
+    - includes: ["portfolio-service/**"]
+      excludes: [ "portfolio-service/target","portfolio-service/config/**","portfolio-service/src/main/resources/bootstrap.yml" ]
+      condition: "#portfolioServiceDeployState == 'existingPortfolioService'"
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: containterRegistryURL
+              with: "#containterRegistryURL"
+        - type: ReplaceText
+          substitutions:
+            - text: nspace
+              with: "#namespaceToDeploy"
+        - type: ReplaceText
+          substitutions:
+            - text: app-name
+              with: "#portfolioServiceDeployName"
+        - type: ReplaceText
+          substitutions:
+            - text: context-name
+              with: "#k8sContextName"
+        - type: ReplaceText
+          substitutions:
+            - text: com.vmware.tanzu
+              with: "#pkgName"
+        - type: RewritePath
+          regex: portfolio-service/src/main/java/com/vmware/tanzu/portfolio/(.*)
+          rewriteTo: "'portfolio-service/src/main/java/' + #pkgName.replace('.', '/') + '/portfolio/' + #g1"
+        - type: RewritePath
+          regex: portfolio-service/src/test/java/com/vmware/tanzu/portfolio/(.*)
+          rewriteTo: "'portfolio-service/src/test/java/' + #pkgName.replace('.', '/') + '/portfolio/' + #g1"
+        - type: ReplaceText
+          substitutions:
+          - text: "<groupId>com.vmware.tanzu</groupId>'"
+            with: "'<groupId>' + #pkgName + '</groupId>'"
+          - text: "<java.version>17</java.version>"
+            with: "'<java.version>' + #javaVersion + '</java.version>'"
+          - text: "<version>2.7.1</version>"
+            with: "'<version>' + #springBootVersion + '</version>'"
+    - includes: ["portfolio-service/src/main/resources/bootstrap.yml"]
+      condition: "#portfolioServiceDeployState == 'existingPortfolioService'"
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: "eureka:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "  client:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    serviceUrl:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "      defaultZone: ${EUREKA_URL}"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    fetch-registry: true"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "  instance:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    hostname: ${HOSTNAME}"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "      defaultZone: ${EUREKA_URL}"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    #nonSecurePort: 80"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    #metadata-map:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    #  management:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    #    port: 80"
+              with: "#emptyVar"
+    - includes: ["web-ui/**"]
+      condition: "#webServiceDeployState == 'newWebServiceDevelop'"
+      excludes: [ "web-ui/target","web-ui/config/**" ]
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: containterRegistryURL
+              with: "#containterRegistryURL"
+        - type: ReplaceText
+          substitutions:
+            - text: nspace
+              with: "#namespaceToDeploy"
+        - type: ReplaceText
+          substitutions:
+            - text: app-name
+              with: "#webServiceDeployNameW"
+        - type: ReplaceText
+          substitutions:
+            - text: context-name
+              with: "#k8sContextName"
+        - type: ReplaceText
+          substitutions:
+            - text: com.vmware.tanzu
+              with: "#pkgName"
+        - type: RewritePath
+          regex: web-ui/src/main/java/com/vmware/tanzu/web/(.*)
+          rewriteTo: "'web-ui/src/main/java/' + #pkgName.replace('.', '/') + '/web/' + #g1"
+        - type: RewritePath
+          regex: web-ui/src/test/java/com/vmware/tanzu/web/(.*)
+          rewriteTo: "'web-ui/src/test/java/' + #pkgName.replace('.', '/') + '/web/' + #g1"
+        - type: ReplaceText
+          substitutions:
+          - text: "<groupId>com.vmware.tanzu</groupId>'"
+            with: "'<groupId>' + #pkgName + '</groupId>'"
+          - text: "<java.version>17</java.version>"
+            with: "'<java.version>' + #javaVersion + '</java.version>'"
+          - text: "<version>2.7.1</version>"
+            with: "'<version>' + #springBootVersion + '</version>'"
+    - includes: ["web-ui/config/**"]
+      condition: "#webServiceDeploy != false"
+      chain:
+        - type: YTT
+    - includes: ["web-ui/**"]
+      excludes: [ "web-ui/target","web-ui/config/**","web-ui/src/main/resources/bootstrap.yml" ]
+      condition: "#webServiceDeployState == 'existingWebService'"
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: containterRegistryURL
+              with: "#containterRegistryURL"
+        - type: ReplaceText
+          substitutions:
+            - text: nspace
+              with: "#namespaceToDeploy"
+        - type: ReplaceText
+          substitutions:
+            - text: app-name
+              with: "#accountServiceDeployName"
+        - type: ReplaceText
+          substitutions:
+            - text: context-name
+              with: "#k8sContextName"
+        - type: ReplaceText
+          substitutions:
+            - text: com.vmware.tanzu
+              with: "#pkgName"
+        - type: RewritePath
+          regex: web-ui/src/main/java/com/vmware/tanzu/web/(.*)
+          rewriteTo: "'web-ui/src/main/java/' + #pkgName.replace('.', '/') + '/web/' + #g1"
+        - type: RewritePath
+          regex: web-ui/src/test/java/com/vmware/tanzu/web/(.*)
+          rewriteTo: "'web-ui/src/test/java/' + #pkgName.replace('.', '/') + '/web/' + #g1"
+        - type: ReplaceText
+          substitutions:
+          - text: "<groupId>com.vmware.tanzu</groupId>'"
+            with: "'<groupId>' + #pkgName + '</groupId>'"
+          - text: "<java.version>17</java.version>"
+            with: "'<java.version>' + #javaVersion + '</java.version>'"
+          - text: "<version>2.7.1</version>"
+            with: "'<version>' + #springBootVersion + '</version>'"
+    - includes: ["web-ui/src/main/resources/bootstrap.yml"]
+      condition: "#webServiceDeployState == 'existingWebService'"
+      chain:
+        - type: ReplaceText
+          substitutions:
+            - text: "eureka:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "  client:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    serviceUrl:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "      defaultZone: ${EUREKA_URL}"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    fetch-registry: true"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "  instance:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    hostname: ${HOSTNAME}"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "      defaultZone: ${EUREKA_URL}"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    #nonSecurePort: 80"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    #metadata-map:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    #  management:"
+              with: "#emptyVar"
+        - type: ReplaceText
+          substitutions:
+            - text: "    #    port: 80"
+              with: "#emptyVar"
+      #chain:
+      #  - type: ReplaceText
+      #    substitutions:
+      #      - text: app-name
+      #        with: "#parentApp"
+
+
+    #data entity transformations
+#    - includes: [ "src/main/resources/application.properties" ]
+#      condition: "#dbType != ''"
+#      chain:
+#        - type: ReplaceText
+#          substitutions:
+#            - text: petclinic-app-mysql-claim
+#              with: "#parentApp+'-'+#dbType+'-claim'"
+#    - includes: [ "Tiltfile" ]
+#      chain:
+#        - type: ReplaceText
+#          substitutions:
+#            - text: app-name
+#              with: "#parentApp"
+#        - type: ReplaceText
+#          substitutions:
+#            - text: nspace
+#              with: "#namespaceToDeploy"

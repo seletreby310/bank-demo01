@@ -1,0 +1,151 @@
+#mvn spring-boot:build-image  -DskipTests
+version: '3.4'
+services:
+  postgresql-svc:
+    container_name: postgresql-svc
+    image: docker.io/bitnami/postgresql:14
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'postgresql_data:/bitnami/postgresql'
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+  config-server:
+    container_name: config-server
+    image: docker.io/library/config:0.0.1-SNAPSHOT
+    environment:
+      WAVEFRONT_TOKEN: 'change-me'
+    ports:
+      - '8888:8888'
+  user-svc:
+    container_name: user-svc
+    image: docker.io/library/user-service:0.0.1-SNAPSHOT
+    depends_on:
+      - "discovery-svc"
+    environment:
+      'spring.datasource.url': 'jdbc:postgresql://postgresql-svc:5432/'
+      'spring.datasource.username': 'postgres'
+      'spring.jpa.database-platform': 'org.hibernate.dialect.PostgreSQLDialect'
+      'spring.cloud.config.uri' : 'http://config-server:8888'
+      'spring.cloud.config.fail-fast' : 'true'
+      'spring.cloud.config.retry.max-interval': 10000
+      'spring.cloud.config.retry.max-attempts': 2000
+      WAVEFRONT_TOKEN: 'change-me'
+      EUREKA_URL: 'http://admin:admin@discovery-svc:8761/eureka'
+    ports:
+      - '8084:8080'
+    expose:
+      - '8084'
+  account-svc:
+    container_name: account-svc
+    image: docker.io/library/account-service:0.0.1-SNAPSHOT
+    depends_on:
+      - "discovery-svc"
+    environment:
+      'spring.datasource.url': 'jdbc:postgresql://postgresql-svc:5432/'
+      'spring.datasource.username': 'postgres'
+      'spring.jpa.database-platform': 'org.hibernate.dialect.PostgreSQLDialect'
+      'spring.cloud.config.uri' : 'http://config-server:8888'
+      'spring.cloud.config.fail-fast' : 'true'
+      'spring.cloud.config.retry.max-interval': 10000
+      'spring.cloud.config.retry.max-attempts': 2000
+      WAVEFRONT_TOKEN: 'change-me'
+      EUREKA_URL: 'http://admin:admin@discovery-svc:8761/eureka'
+    ports:
+      - '8082:8080'
+    expose:
+      - '8082'
+  quote-svc:
+    container_name: quote-svc
+    image: docker.io/library/quote-service:0.0.1-SNAPSHOT
+    depends_on:
+      - "discovery-svc"
+    environment:
+      'spring.cloud.config.uri' : 'http://config-server:8888'
+      'spring.cloud.config.fail-fast' : 'true'
+      'spring.cloud.config.retry.max-interval': 10000
+      'spring.cloud.config.retry.max-attempts': 2000
+      'spring.cache.type': 'redis'
+      'spring.redis.host': 'redis-svc'
+      'spring.redis.port': 6379
+      WAVEFRONT_TOKEN: 'change-me'
+      EUREKA_URL: 'http://admin:admin@discovery-svc:8761/eureka'
+    ports:
+      - '8083:8080'
+    expose:
+      - '8083'
+  portfolio-svc:
+    container_name: portfolio-svc
+    image: docker.io/library/portfolio-service:0.0.1-SNAPSHOT
+    depends_on:
+      - "discovery-svc"
+    environment:
+      'spring.datasource.url': 'jdbc:postgresql://postgresql-svc:5432/'
+      'spring.datasource.username': 'postgres'
+      'spring.jpa.database-platform': 'org.hibernate.dialect.PostgreSQLDialect'
+      accountServiceName: 'account-svc:8080'
+      quoteServiceName: 'quote-svc:8080'
+      'spring.cloud.config.uri' : 'http://config-server:8888'
+      'spring.cloud.config.fail-fast' : 'true'
+      'spring.cloud.config.retry.max-interval': 10000
+      'spring.cloud.config.retry.max-attempts': 2000
+      WAVEFRONT_TOKEN: 'change-me'
+      EUREKA_URL: 'http://admin:admin@discovery-svc:8761/eureka'
+    ports:
+      - '8081:8080'
+    expose:
+      - '8081'
+  web-ui-svc:
+    container_name: web-ui-svc
+    image: docker.io/library/web-ui:0.0.1-SNAPSHOT
+    depends_on:
+      - "discovery-svc"    
+    environment:
+      accountServiceName: 'account-svc:8080'
+      userServiceName: 'user-svc:8080'
+      portfolioServiceName: 'portfolio-svc:8080'
+      analyticsServiceName: 'analytics-svc:8080'
+      quoteServiceName: 'quote-svc:8080'
+      'spring.cloud.config.uri' : 'http://config-server:8888'
+      'spring.cloud.config.fail-fast' : 'true'
+      'spring.cloud.config.retry.max-interval': 10000
+      'spring.cloud.config.retry.max-attempts': 2000
+      WAVEFRONT_TOKEN: 'change-me'
+      EUREKA_URL: 'http://admin:admin@discovery-svc:8761/eureka'
+    ports:
+      - '8080:8080'
+    expose:
+      - '8080'
+  discovery-svc:
+    container_name: discovery-svc
+    image: docker.io/library/discovery:0.0.1-SNAPSHOT
+    depends_on:
+      - "config-server"
+    environment:
+      'management.metrics.export.wavefront.uri': 'proxy://wf-proxy:2878'
+      'management.metrics.export.wavefront.api-token': 'change-me'
+    ports:
+      - '8761:8761'
+    expose:
+      - '8761'
+  wf-proxy:
+    container_name: wf-proxy
+    image: wavefronthq/proxy:latest
+    environment:
+      WAVEFRONT_URL: 'https://vmware.wavefront.com/api'
+      WAVEFRONT_TOKEN: 'change-me'
+      WAVEFRONT_URL: 'https://wavefront.surf/api'
+      JAVA_HEAP_USAGE: '1650m'
+    ports:
+      - '2878:2878'
+    expose:
+      - '2878'
+  redis-svc:
+    container_name: redis-svc
+    image: redis/redis-stack:latest
+    ports:
+      - '8001:8001'
+      - '6379:6379'
+volumes:
+  postgresql_data:
+    driver: local
